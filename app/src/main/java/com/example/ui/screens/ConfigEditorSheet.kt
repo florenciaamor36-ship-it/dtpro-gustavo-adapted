@@ -73,7 +73,7 @@ fun ConfigEditorSheet(
     var sniHost by remember { mutableStateOf(config?.sniHost ?: "") }
     var payload by remember { mutableStateOf(config?.customPayload ?: "") }
     var proxyHost by remember { mutableStateOf(config?.proxyHost ?: "") }
-    var proxyPortText by remember { mutableStateOf((config?.proxyPort ?: 8080).toString()) }
+    var proxyPortText by remember { mutableStateOf(if (config?.proxyHost.isNullOrBlank()) "" else (config?.proxyPort ?: 80).toString()) }
     var dnsPrimary by remember { mutableStateOf(config?.dnsPrimary ?: "8.8.8.8") }
     var dnsSecondary by remember { mutableStateOf(config?.dnsSecondary ?: "8.8.4.4") }
     var autoReconnect by remember { mutableStateOf(config?.autoReconnect ?: true) }
@@ -312,7 +312,7 @@ fun ConfigEditorSheet(
             Button(
                 onClick = {
                     val port = portText.toIntOrNull() ?: mode.defaultPort
-                    val pPort = proxyPortText.toIntOrNull() ?: 8080
+                    val pPort = proxyPortText.toIntOrNull() ?: 80
                     val updated = (config ?: TunnelConfig(name = name)).copy(
                         name = name.ifBlank { "Perfil SSH" },
                         mode = mode,

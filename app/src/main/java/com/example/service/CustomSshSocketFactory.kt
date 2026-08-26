@@ -115,8 +115,12 @@ class CustomSshSocketFactory(
             }
 
             TunnelMode.SSH_PAYLOAD -> {
-                val frontHost = config.proxyHost.trim().ifBlank { targetHost }
-                val frontPort = if (config.proxyPort > 0) config.proxyPort else 80
+                val configuredFrontHost = config.proxyHost.trim()
+                val frontHost = configuredFrontHost.ifBlank { targetHost }
+                // With no proxy configured, HTTP Custom connects directly to the
+                // SSH host on the payload port (normally 80), never to the model
+                // default 8080.
+                val frontPort = if (configuredFrontHost.isBlank()) 80 else if (config.proxyPort > 0) config.proxyPort else 80
 
                 require(frontHost.isNotBlank()) { "El Host frontal o Proxy no puede estar vacío." }
                 require(targetHost.isNotBlank()) { "El Host real del servidor SSH no puede estar vacío." }
