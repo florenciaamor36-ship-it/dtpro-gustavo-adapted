@@ -169,6 +169,13 @@ class TunnelEngine private constructor() {
                 refreshPublicIp()
 
             } catch (minaErr: Exception) {
+                // Payload/HTTP transport must not fall back to a new direct SSH
+                // connection: that would incorrectly target the frontal host and
+                // hide the real transport error (often as UnknownHostException).
+                if (config.mode == TunnelMode.SSH_PAYLOAD) {
+                    log("⛔ SSH sobre payload no pudo iniciar: ${minaErr.message}", LogLevel.ERROR)
+                    throw minaErr
+                }
                 log("Aviso: MINA SSHD falló: ${minaErr.message}. Probando fallback JSch...", LogLevel.WARNING)
                 connectJSchFallback(config, socketFactory)
             }
