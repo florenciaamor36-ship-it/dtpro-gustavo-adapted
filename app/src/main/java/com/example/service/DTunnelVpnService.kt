@@ -31,6 +31,12 @@ class DTunnelVpnService : VpnService() {
     private var stateObserverJob: Job? = null
 
     companion object {
+        @Volatile private var activeInstance: DTunnelVpnService? = null
+
+        /** Exempts the tunnel's own sockets from the VPN capture route. */
+        fun protectTunnelSocket(socket: java.net.Socket): Boolean =
+            activeInstance?.protect(socket) ?: false
+
         const val ACTION_CONNECT = "com.example.service.DTunnelVpnService.CONNECT"
         const val ACTION_DISCONNECT = "com.example.service.DTunnelVpnService.DISCONNECT"
         const val CHANNEL_ID = "dtunnel_vpn_status_channel"
@@ -57,7 +63,13 @@ class DTunnelVpnService : VpnService() {
 
     override fun onCreate() {
         super.onCreate()
+        activeInstance = this
         createNotificationChannel()
+    }
+
+    override fun onDestroy() {
+        activeInstance = null
+        super.onDestroy()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

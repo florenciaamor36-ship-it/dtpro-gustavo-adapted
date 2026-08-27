@@ -88,6 +88,7 @@ class CustomSshSocketFactory(
                 val socket = Socket()
                 socket.tcpNoDelay = true
                 socket.soTimeout = 20000
+                require(DTunnelVpnService.protectTunnelSocket(socket)) { "No se pudo excluir el socket SSH del túnel VPN" }
                 socket.connect(InetSocketAddress(targetHost, targetPort), 15000)
                 lastCreatedSocket = socket
                 return socket
@@ -129,6 +130,7 @@ class CustomSshSocketFactory(
                 val socket = Socket()
                 socket.tcpNoDelay = true
                 socket.soTimeout = 20000
+                require(DTunnelVpnService.protectTunnelSocket(socket)) { "No se pudo excluir el socket del payload del túnel VPN" }
                 socket.connect(InetSocketAddress(frontHost, frontPort), 15000)
                 logCallback("✓ Socket TCP conectado a $frontHost:$frontPort")
 
