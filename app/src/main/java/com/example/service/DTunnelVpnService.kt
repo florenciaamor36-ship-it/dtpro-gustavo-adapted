@@ -67,11 +67,6 @@ class DTunnelVpnService : VpnService() {
         createNotificationChannel()
     }
 
-    override fun onDestroy() {
-        activeInstance = null
-        super.onDestroy()
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_CONNECT -> {
@@ -230,6 +225,7 @@ class DTunnelVpnService : VpnService() {
     }
 
     override fun onDestroy() {
+        activeInstance = null
         BatteryManagerHelper.releaseWakeLock()
         stateObserverJob?.cancel()
         serviceJob.cancel()
