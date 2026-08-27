@@ -18,6 +18,8 @@ import com.example.ui.screens.HomeScreen
 import com.example.ui.theme.MyApplicationTheme
 import com.example.util.ConfigExporter
 import com.example.util.FileHandlerHelper
+import java.io.PrintWriter
+import java.io.StringWriter
 
 class MainActivity : ComponentActivity() {
 
@@ -40,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installCrashRecorder()
         enableEdgeToEdge()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -57,6 +60,19 @@ class MainActivity : ComponentActivity() {
                     onPrepareVpn = { prepareVpn() }
                 )
             }
+        }
+    }
+
+    private fun installCrashRecorder() {
+        val previous = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, error ->
+            val sw = StringWriter()
+            error.printStackTrace(PrintWriter(sw))
+            getSharedPreferences("gtunel_diagnostics", MODE_PRIVATE)
+                .edit()
+                .putString("last_crash", "${thread.name}: ${sw}")
+                .apply()
+            previous?.uncaughtException(thread, error)
         }
     }
 

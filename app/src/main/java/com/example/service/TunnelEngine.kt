@@ -106,6 +106,8 @@ class TunnelEngine private constructor() {
             } catch (e: Exception) {
                 val readableError = maskSecrets(e.localizedMessage ?: e.message ?: "Error desconocido")
                 log("⛔ Error en túnel SSH: $readableError", LogLevel.ERROR)
+                lastContext?.getSharedPreferences("gtunel_diagnostics", Context.MODE_PRIVATE)
+                    ?.edit()?.putString("last_error", readableError)?.apply()
                 handleConnectionFailure(config, readableError)
             }
         }
@@ -339,7 +341,9 @@ class TunnelEngine private constructor() {
     private suspend fun handleConnectionFailure(config: TunnelConfig, reason: String) {
         cleanup()
         lastContext?.let { SoundEffectHelper.playErrorSound(it) }
-        if (config.autoReconnect && !isUserInitiatedStop && reconnectAttempts < 5) {
+        // Stop after the first failure while diagnosing startup crashes. Automatic
+        // retries can recreate the VPN/socket loop and hide the original exception.
+        if (false && config.autoReconnect && !isUserInitiatedStop && reconnectAttempts < 5) {
             reconnectAttempts++
             val delaySec = reconnectAttempts * 3
             log("Reintentando conexión automática en $delaySec s (Intento $reconnectAttempts/5)...", LogLevel.WARNING)
