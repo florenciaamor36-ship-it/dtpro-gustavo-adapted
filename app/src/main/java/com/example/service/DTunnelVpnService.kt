@@ -32,11 +32,12 @@ class DTunnelVpnService : VpnService() {
 
     companion object {
         @Volatile private var activeInstance: DTunnelVpnService? = null
+        @Volatile private var vpnReady: Boolean = false
 
         /** Exempts the tunnel's own sockets from the VPN capture route. */
         fun protectTunnelSocket(socket: java.net.Socket): Boolean {
             val deadline = System.currentTimeMillis() + 5000L
-            while (activeInstance == null && System.currentTimeMillis() < deadline) {
+            while ((activeInstance == null || !vpnReady) && System.currentTimeMillis() < deadline) {
                 try { Thread.sleep(100L) } catch (_: InterruptedException) { break }
             }
             return activeInstance?.protect(socket) ?: false
@@ -135,6 +136,7 @@ class DTunnelVpnService : VpnService() {
             }
 
             vpnInterface = builder.establish()
+            vpnReady = vpnInterface != null
             TunnelEngine.instance.log("Interfaz TUN VPN establecida (10.0.0.2/24)", com.example.data.model.LogLevel.SUCCESS)
         } catch (e: Exception) {
             TunnelEngine.instance.log("Aviso en interfaz VPN: ${e.message}", com.example.data.model.LogLevel.WARNING)
@@ -182,6 +184,7 @@ class DTunnelVpnService : VpnService() {
             vpnInterface?.close()
         } catch (_: Exception) {}
         vpnInterface = null
+        vpnReady = false
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -238,6 +241,7 @@ class DTunnelVpnService : VpnService() {
             vpnInterface?.close()
         } catch (_: Exception) {}
         vpnInterface = null
+        vpnReady = false
         super.onDestroy()
     }
 }
