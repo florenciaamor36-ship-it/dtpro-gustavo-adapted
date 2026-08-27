@@ -34,8 +34,13 @@ class DTunnelVpnService : VpnService() {
         @Volatile private var activeInstance: DTunnelVpnService? = null
 
         /** Exempts the tunnel's own sockets from the VPN capture route. */
-        fun protectTunnelSocket(socket: java.net.Socket): Boolean =
-            activeInstance?.protect(socket) ?: false
+        fun protectTunnelSocket(socket: java.net.Socket): Boolean {
+            val deadline = System.currentTimeMillis() + 5000L
+            while (activeInstance == null && System.currentTimeMillis() < deadline) {
+                try { Thread.sleep(100L) } catch (_: InterruptedException) { break }
+            }
+            return activeInstance?.protect(socket) ?: false
+        }
 
         const val ACTION_CONNECT = "com.example.service.DTunnelVpnService.CONNECT"
         const val ACTION_DISCONNECT = "com.example.service.DTunnelVpnService.DISCONNECT"
