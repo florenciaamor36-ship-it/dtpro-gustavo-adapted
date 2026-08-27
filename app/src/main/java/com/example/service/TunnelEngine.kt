@@ -86,6 +86,9 @@ class TunnelEngine private constructor() {
 
         scope.launch {
             try {
+                // The VPN service is started immediately after this method. Give
+                // Android time to create the service instance before protect().
+                delay(500)
                 when (config.mode) {
                     // HTTP Custom uses a raw HTTP Upgrade over TCP.  Do not use
                     // OkHttp's framed WebSocket client here: after the 101 response
