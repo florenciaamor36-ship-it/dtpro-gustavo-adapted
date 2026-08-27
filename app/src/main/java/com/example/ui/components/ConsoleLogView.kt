@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,6 +50,7 @@ import com.example.ui.theme.TextSecondary
 fun ConsoleLogView(
     logs: List<LogEntry>,
     onClearLogs: () -> Unit,
+    onCopyLogs: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -89,18 +91,31 @@ fun ConsoleLogView(
                 )
             }
 
-            IconButton(
-                onClick = onClearLogs,
-                modifier = Modifier
-                    .size(28.dp)
-                    .testTag("clear_logs_button")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ClearAll,
-                    contentDescription = "Limpiar Logs",
-                    tint = TextMuted,
-                    modifier = Modifier.size(18.dp)
-                )
+            Row {
+                IconButton(
+                    onClick = onCopyLogs,
+                    modifier = Modifier.size(28.dp).testTag("copy_logs_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = "Copiar log completo",
+                        tint = NeonCyan,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                IconButton(
+                    onClick = onClearLogs,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .testTag("clear_logs_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ClearAll,
+                        contentDescription = "Limpiar Logs",
+                        tint = TextMuted,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
 

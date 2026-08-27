@@ -47,8 +47,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -80,6 +82,7 @@ fun HomeScreen(
     onPrepareVpn: () -> Unit
 ) {
     val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
     val tunnelState by viewModel.tunnelState.collectAsState()
     val logs by viewModel.logs.collectAsState()
     val allConfigs by viewModel.allConfigs.collectAsState()
@@ -230,6 +233,10 @@ fun HomeScreen(
             ConsoleLogView(
                 logs = logs,
                 onClearLogs = { viewModel.clearLogs() },
+                onCopyLogs = {
+                    val fullLog = logs.joinToString("\n") { "[${it.formattedTime}] ${it.level}: ${it.message}" }
+                    clipboard.setText(AnnotatedString(fullLog))
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
