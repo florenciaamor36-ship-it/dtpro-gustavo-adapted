@@ -14,7 +14,8 @@ android {
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.gtunel"
+    // Stable application ID: preserves update compatibility across all Gtunel releases.
+    applicationId = "com.aistudio.dtunnel.manager"
     minSdk = 24
     targetSdk = 36
     versionCode = 1
